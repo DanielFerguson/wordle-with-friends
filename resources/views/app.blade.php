@@ -11,6 +11,7 @@
 
 <body>
     @inertia
+    <div>This is part of the template</div>
 </body>
 
 </html>

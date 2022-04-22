@@ -24,6 +24,10 @@ class User extends Authenticatable
         'github_id',
         'github_token',
         'github_refresh_token',
+        'twitter_id',
+        'twitter_token',
+        'twitter_refresh_token',
+        'avatar',
     ];
 
     /**
@@ -44,4 +48,9 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'group_user');
+    }
 }
