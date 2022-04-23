@@ -1,6 +1,6 @@
 <?php
 
-use Faker\Core\Uuid;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,13 +14,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('groups', function (Blueprint $table) {
-            $table->id();
+        Schema::create('competitive_games', function (Blueprint $table) {
+            $table->primary(['user_id', 'date']);
 
-            $table->string('name');
-            $table->boolean('private')->default(false);
-            $table->enum('type', ['collaborative', 'competitive']);
-            $table->uuid('join_code');
+            $table->foreignIdFor(User::class);
+            $table->date('date');
+            $table->unsignedSmallInteger('attempts')->default(0);
+            $table->boolean('completed')->nullable();
 
             $table->timestamps();
         });
@@ -33,6 +33,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('groups');
+        Schema::dropIfExists('competitive_games');
     }
 };

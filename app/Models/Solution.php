@@ -5,17 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Group extends Model
+class Solution extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $fillable = [
-        'user_id',
-        'join_code'
+        'date',
+        'word_id'
     ];
 
-    public function members()
+    public function word()
     {
-        return $this->hasMany(User::class);
+        return $this->hasOne(Word::class);
     }
 }

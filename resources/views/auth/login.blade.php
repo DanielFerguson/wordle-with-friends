@@ -52,9 +52,15 @@
                 <x-button class="ml-3">
                     {{ __('Log in') }}
                 </x-button>
+            </div>
 
+            <div class="flex items-center justify-end mt-4">
                 <x-button-link href="/auth/redirect/github" class="ml-4">
                     {{ __('Use Github') }}
+                </x-button-link>
+
+                <x-button-link href="/auth/redirect/twitter" class="ml-4">
+                    {{ __('Use Twitter') }}
                 </x-button-link>
             </div>
         </form>
