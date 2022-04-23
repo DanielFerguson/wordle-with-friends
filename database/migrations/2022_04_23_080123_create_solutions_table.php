@@ -15,7 +15,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('solutions', function (Blueprint $table) {
-            $table->primary('date');
+            $table->id();
+            $table->unique(['date', 'word_id']);
 
             $table->date('date');
             $table->foreignIdFor(Word::class);

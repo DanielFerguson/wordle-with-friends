@@ -16,7 +16,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('group_user', function (Blueprint $table) {
-            $table->primary(['group_id', 'user_id']);
+            $table->id();
+            $table->unique(['group_id', 'user_id']);
 
             $table->foreignIdFor(Group::class);
             $table->foreignIdFor(User::class);

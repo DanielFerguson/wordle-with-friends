@@ -7364,7 +7364,11 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
-var blankWord = "     ";
+var emptyLetter = {
+  color: "empty",
+  "char": " "
+};
+var emptyRow = [emptyLetter, emptyLetter, emptyLetter, emptyLetter, emptyLetter];
 
 function classNames() {
   for (var _len = arguments.length, classes = new Array(_len), _key = 0; _key < _len; _key++) {
@@ -7375,35 +7379,36 @@ function classNames() {
 }
 
 var LetterBox = function LetterBox(_ref) {
-  var _ref$letter = _ref.letter,
-      letter = _ref$letter === void 0 ? "A" : _ref$letter;
+  var letter = _ref.letter;
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
-    className: "h-16 w-full rounded bg-gray-200 flex items-center justify-center text-2xl font-bold",
-    children: letter.toUpperCase()
+    className: classNames("h-16 w-full rounded flex items-center justify-center text-2xl font-bold", letter.color == "green" && "bg-green-500", letter.color == "yellow" && "bg-yellow-400", letter.color == "gray" && "bg-gray-400", letter.color == "empty" && "bg-gray-200"),
+    children: letter["char"].toUpperCase()
   });
 };
 
 var Guess = function Guess(_ref2) {
   var word = _ref2.word;
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.Fragment, {
-    children: Array.from(word).map(function (letter) {
+    children: Array.from(word).map(function (letter, index) {
       return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(LetterBox, {
         letter: letter
-      }, letter);
+      }, index);
     })
   });
 };
 
-var Play = function Play() {
-  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(["adieu", "adieu", "adieu"]),
+var Play = function Play(_ref3) {
+  var game = _ref3.game;
+
+  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(game.guesses.map(function (guess) {
+    return guess.attempt;
+  })),
       _useState2 = _slicedToArray(_useState, 2),
       guesses = _useState2[0],
       setGuesses = _useState2[1];
 
   var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
-    first_name: "",
-    last_name: "",
-    email: ""
+    guess: "brash"
   }),
       _useState4 = _slicedToArray(_useState3, 2),
       values = _useState4[0],
@@ -7419,7 +7424,7 @@ var Play = function Play() {
 
   function handleSubmit(e) {
     e.preventDefault();
-    _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_1__.Inertia.post("/users", values);
+    _inertiajs_inertia__WEBPACK_IMPORTED_MODULE_1__.Inertia.post("/play", values);
   }
 
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
@@ -7435,15 +7440,19 @@ var Play = function Play() {
     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("main", {
       className: "grid grid-cols-5 gap-2 w-full",
       children: _toConsumableArray(Array(5).keys()).map(function (index) {
-        return guesses && guesses[index] ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(Guess, {
+        return guesses && guesses.length > index ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(Guess, {
           word: guesses[index]
         }, index) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(Guess, {
-          word: blankWord
+          word: emptyRow
         }, index);
       })
-    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("form", {
+    }), !game.completed ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("form", {
       className: "flex gap-2 w-full",
+      onSubmit: handleSubmit,
       children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("input", {
+        id: "guess",
+        value: values.guess,
+        onChange: handleChange,
         type: "text",
         name: "guess",
         maxLength: "5",
@@ -7451,6 +7460,8 @@ var Play = function Play() {
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("button", {
         children: "Guess"
       })]
+    }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
+      children: "Well done! Thank's for playing today."
     })]
   });
 };
@@ -7515,7 +7526,7 @@ window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
  */
 
 window.axios = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+window.axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
 /**
  * Echo exposes an expressive API for subscribing to channels and listening
  * for events that are broadcast by Laravel. Echo and event broadcasting

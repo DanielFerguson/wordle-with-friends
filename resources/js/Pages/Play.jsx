@@ -1,16 +1,31 @@
 import { useState } from "react";
 import { Inertia } from "@inertiajs/inertia";
 
-const blankWord = "     ";
+const emptyLetter = { color: "empty", char: " " };
+const emptyRow = [
+    emptyLetter,
+    emptyLetter,
+    emptyLetter,
+    emptyLetter,
+    emptyLetter,
+];
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(" ");
 }
 
-const LetterBox = ({ letter = "A" }) => {
+const LetterBox = ({ letter }) => {
     return (
-        <div className="h-16 w-full rounded bg-gray-200 flex items-center justify-center text-2xl font-bold">
-            {letter.toUpperCase()}
+        <div
+            className={classNames(
+                "h-16 w-full rounded flex items-center justify-center text-2xl font-bold",
+                letter.color == "green" && "bg-green-500",
+                letter.color == "yellow" && "bg-yellow-400",
+                letter.color == "gray" && "bg-gray-400",
+                letter.color == "empty" && "bg-gray-200"
+            )}
+        >
+            {letter.char.toUpperCase()}
         </div>
     );
 };
@@ -18,19 +33,19 @@ const LetterBox = ({ letter = "A" }) => {
 const Guess = ({ word }) => {
     return (
         <>
-            {Array.from(word).map((letter) => (
-                <LetterBox key={letter} letter={letter} />
+            {Array.from(word).map((letter, index) => (
+                <LetterBox key={index} letter={letter} />
             ))}
         </>
     );
 };
 
-const Play = () => {
-    const [guesses, setGuesses] = useState(["adieu", "adieu", "adieu"]);
+const Play = ({ game }) => {
+    const [guesses, setGuesses] = useState(
+        game.guesses.map((guess) => guess.attempt)
+    );
     const [values, setValues] = useState({
-        first_name: "",
-        last_name: "",
-        email: "",
+        guess: "brash",
     });
 
     function handleChange(e) {
@@ -44,7 +59,7 @@ const Play = () => {
 
     function handleSubmit(e) {
         e.preventDefault();
-        Inertia.post("/users", values);
+        Inertia.post("/play", values);
     }
 
     return (
@@ -57,23 +72,30 @@ const Play = () => {
 
             <main className="grid grid-cols-5 gap-2 w-full">
                 {[...Array(5).keys()].map((index) => {
-                    return guesses && guesses[index] ? (
+                    return guesses && guesses.length > index ? (
                         <Guess key={index} word={guesses[index]} />
                     ) : (
-                        <Guess key={index} word={blankWord} />
+                        <Guess key={index} word={emptyRow} />
                     );
                 })}
             </main>
 
-            <form className="flex gap-2 w-full">
-                <input
-                    type="text"
-                    name="guess"
-                    maxLength="5"
-                    className="flex-grow rounded"
-                />
-                <button>Guess</button>
-            </form>
+            {!game.completed ? (
+                <form className="flex gap-2 w-full" onSubmit={handleSubmit}>
+                    <input
+                        id="guess"
+                        value={values.guess}
+                        onChange={handleChange}
+                        type="text"
+                        name="guess"
+                        maxLength="5"
+                        className="flex-grow rounded"
+                    />
+                    <button>Guess</button>
+                </form>
+            ) : (
+                <div>Well done! Thank's for playing today.</div>
+            )}
         </div>
     );
 };

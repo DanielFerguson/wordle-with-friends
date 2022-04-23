@@ -18,6 +18,6 @@ class Solution extends Model
 
     public function word()
     {
-        return $this->hasOne(Word::class);
+        return $this->belongsTo(Word::class);
     }
 }

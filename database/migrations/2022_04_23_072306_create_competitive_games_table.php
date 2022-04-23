@@ -15,7 +15,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('competitive_games', function (Blueprint $table) {
-            $table->primary(['user_id', 'date']);
+            $table->id();
+            $table->unique(['user_id', 'date']);
 
             $table->foreignIdFor(User::class);
             $table->date('date');

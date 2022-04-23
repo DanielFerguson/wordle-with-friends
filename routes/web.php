@@ -1,11 +1,14 @@
 <?php
 
+use App\Http\Requests\StoreGuessRequest;
 use App\Models\CompetitiveGame;
 use App\Models\Group;
+use App\Models\Guess;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request as FacadesRequest;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Socialite\Facades\Socialite;
@@ -19,11 +22,33 @@ Route::get('/dashboard', function () {
 })->middleware(['auth']);
 
 // | ------------------------------------------------
-// | Games
+// | Game
 // | ------------------------------------------------
 
-// TODO: Join/start a game - /game/{group id}/start
-// * Is there a game currently open for that group? Y: join it, N: create one, join it
+// Start/load a game
+Route::group(['middleware' => 'auth'], function () {
+    Route::get('/play', function () {
+        return Inertia::render('Play', [
+            'game' => CompetitiveGame::firstOrCreate([
+                'user_id' => Auth::id(),
+                'date' => date('Y-m-d')
+            ])->with(['guesses'])->first()
+        ]);
+    });
+
+    Route::post('/play', function (StoreGuessRequest $request) {
+        $validated = $request->validated();
+
+        $game = CompetitiveGame::firstOrCreate([
+            'user_id' => Auth::id(),
+            'date' => date('Y-m-d')
+        ])->first();
+
+        $game->guess($validated['guess']);
+
+        return redirect('/play');
+    });
+});
 
 // | ------------------------------------------------
 // | Groups
@@ -81,36 +106,6 @@ Route::group(['prefix' => '/groups', 'middleware' => ['auth']], function () {
 });
 
 // | ------------------------------------------------
-// | Game
-// | ------------------------------------------------
-
-// Start/load a game
-Route::group(['middleware' => 'auth'], function () {
-    Route::get('/play', function () {
-        $game = CompetitiveGame::firstOrCreate([
-            'user_id' => Auth::id(),
-            'date' => date('Y-m-d')
-        ]);
-
-        // Check if the User has a pre-existing game for today
-        // If so, get all of the guesses for that game
-        // Otherwise, start a new game
-        return Inertia::render('Play');
-    });
-
-    // Attempt a guess
-    Route::get('/attempt/{guess}', function (String $guess) {
-        // Check each of the letters of the guess...
-        // - if a letter exists, but is in the wrong place, it is orange,
-        // - if a letter is in the right place, it is green,
-        // - if a letter does not exist in the solution, it is gray
-        // - if the word does not exist within the word list, return false and don't count the attempt
-
-        dd($guess);
-    });
-});
-
-// | ------------------------------------------------
 // | Socialite (OAuth)
 // | ------------------------------------------------
 
@@ -158,6 +153,5 @@ Route::group(['prefix' => '/auth/callback'], function () {
         return redirect('/dashboard');
     });
 });
-
 
 require __DIR__ . '/auth.php';
